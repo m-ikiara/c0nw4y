@@ -1,16 +1,13 @@
 #include "conway.h"
 
-Cell_Position *
-cell_index(int x, int y)
+void
+cell_index(int x, int y, int *cell_x, int *cell_y)
 {
-    Cell_Position *position = NULL;
-    position->cell_x = x / (width * grid_size);
-    position->cell_y = y / (height * grid_size);
-
-    return position;
+    *cell_x = x / (width * grid_size);
+    *cell_y = y / (height * grid_size);
 }
 
-bool
+int
 on_grid(int cell_x, int cell_y)
 {
     return (0 <= cell_x && cell_x <= grid_size - 1) && (0 <= cell_y && cell_y <= grid_size - 1);
@@ -19,8 +16,9 @@ on_grid(int cell_x, int cell_y)
 void
 toggle_cell(int x, int y, int value)
 {
-    Cell_Position *position = cell_index(x, y);
-    if (on_grid(position->cell_x, position->cell_y))
+    int cell_x, cell_y;
+    cell_index(x, y, &cell_x, &cell_y);
+    if (on_grid(cell_x, cell_y))
         grid[position->cell_x * grid_size + position->cell_y] = value;
 }
 
@@ -65,41 +63,19 @@ apply_rules(int x, int y)
 void
 draw_cell(int x, int y)
 {
-    Cell_Position position = {
-        .cell_x = x * cell_width,
-        .cell_y = y * cell_height
-    };
-    DrawRectangleLines(position.cell_x, position.cell_y,
-            cell_width, cell_height, SKYBLUE);
+    int cell_x = x * cell_width,
+    int cell_y = y * cell_height
+
+    DrawRectangleLines(cell_x, cell_y, cell_width, cell_height, SKYBLUE);
 }
 
 void
 draw_cells()
 {
-    memcpy(next_grid, grid, GRID_SIZE(grid_size));
     for (int y = 0; y < grid_size; ++y) {
         for (int x = 0; x < grid_size; ++x) {
             if (!paused) apply_rules(x, y);
             else if (grid[x * grid_size + y] == ALIVE) draw_cell(x, y);
         }
     }
-    memcpy(grid, next_grid, GRID_SIZE(grid_size));
-}
-
-int
-main(void)
-{
-   InitWindow(width, height, WINDOW_TITLE);
-
-   DisableCursor();
-   SetTargetFPS(60);
-   while (!WindowShouldClose()) {
-       BeginDrawing();
-           ClearBackground(RAYWHITE);
-           draw_cells();
-        EndDrawing();
-   }
-   CloseWindow();
-
-   return 0;
 }

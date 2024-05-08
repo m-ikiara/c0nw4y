@@ -7,7 +7,7 @@ IncDIR := ./include
 LibDIR := ./lib
 ObjDIR := ./obj
 # CXXFLAGS := -g -O3 -Wall -Wextra -pedantic -mwindows
-CXXFLAGS := -g -O3 -Wall -Wextra -pedantic
+CXXFLAGS := -g -O3 -Wall -Wextra -pedantic --std=c++20
 # LibFLAGS := -lmingw32 -lraylib -L$(addprefix $(LibDIR)/,SDL2/lib)
 LibFLAGS := -lraylib $(addprefix -L,$(LibDIR))
 IncFLAGS := $(addprefix -I,$(IncDIR))
