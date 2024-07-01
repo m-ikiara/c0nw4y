@@ -1,12 +1,12 @@
 # Compiler settings
-CXX := g++
+CC := gcc
 
 # Flags and globals
 IncDIR := ./include
 LibDIR := ./lib
 ObjDIR := ./obj
 # CXXFLAGS := -g -O3 -Wall -Wextra -pedantic -mwindows
-CXXFLAGS := -g -O3 -Wall -Wextra -pedantic --std=c++20 -mwindows
+CFLAGS := -g -O3 -Wall -Wextra -pedantic -std=c11
 LibFLAGS := -lmingw32 -lraylib $(addprefix -L,$(LibDIR))
 #LibFLAGS := -lraylib $(addprefix -L,$(LibDIR))
 IncFLAGS := $(addprefix -I,$(IncDIR))
@@ -26,14 +26,14 @@ OBJ := $(addprefix $(ObjDIR)/, $(notdir $(SRC:.c=.o) $(CPPSRC:.cpp=.o) $(CXXSRC:
 all: target
 
 target: $(OBJ)
-	$(CXX) $(CXXFLAGS) $(OBJ) $(LibFLAGS) -o $(NAME)
+	$(CC) $(CFLAGS) $(OBJ) $(LibFLAGS) -o $(NAME)
 
 $(ObjDIR)/%.o: $(SRC) $(CPPSRC) $(CXXSRC)
 	mkdir -p $(ObjDIR)
-	$(CXX) $(CXXFLAGS) $(IncFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(IncFLAGS) -c $< -o $@
 
 clean:
-	rm -f target $(OBJ)
+	rm -f $(NAME) $(OBJ)
 
 strip:
 	strip --strip-all $(NAME)

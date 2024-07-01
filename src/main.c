@@ -1,203 +1,124 @@
 #include "conway.h"
-#include "raylib.h"
-#include "rcamera.h"
 
-typedef struct Animation_t {
-    CLITERAL(Color) color;
-    int      state;
-    double   start;
-    double   duration;
-} Animation;
-
-Animation pause_animation = {
-    .color    = BLACK,
-    .state    = HIDDEN,
-    .start    = 0.0,
-    .duration = 0.5,
-};
-
-void change_animation_state(Animation *animation, int state);
-void fade_color_setting(Animation *animation);
+bool
+condition(int nx, int ny, int nz)
+{
+    return (nx >= 0 && nx < WIDTH && ny >= 0 && ny < HEIGHT && nz >= 0 && nz < DEPTH);
+}
+void
+init_grid()
+{
+    for (int x = 0; x < WIDTH; ++x) {
+        for (int y = 0; y < HEIGHT; ++y) {
+            for (int z = 0; z < DEPTH; ++z) {
+                grid[x][y][z] = rand() % 2;
+            }
+        }
+    }
+}
 
 void
-cell_index(int x, int y, int *cell_x, int *cell_y)
+print_grid()
 {
-    *cell_x = x / (width * grid_size);
-    *cell_y = y / (height * grid_size);
+    for (int x = 0; x < WIDTH; ++x) {
+        for (int y = 0; y < HEIGHT; ++y) {
+            for (int z = 0; z < DEPTH; ++z) {
+                printf("%d ", grid[x][y][z]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+    }
+}
+
+void
+update_grid()
+{
+    for (int x = 0; x < WIDTH; ++x) {
+        for (int y = 0; y < HEIGHT; ++y) {
+            for (int z = 0; z < DEPTH; ++z) {
+                int neighbours = count_neighbours(x, y, z);
+
+                if (grid[x][y][z] == ALIVE) {
+                    if (neighbours < 2 || neighbours > 3) new_grid[x][y][z] = DEAD;
+                    else new_grid[x][y][z] = ALIVE;
+                } else {
+                    if (neighbours == 3) new_grid[x][y][z] = ALIVE;
+                    else new_grid[x][y][z] = DEAD;
+                }
+            }
+        }
+    }
+
+    for (int x = 0; x < WIDTH; ++x) {
+        for (int y = 0; y < HEIGHT; ++y) {
+            for (int z = 0; z < DEPTH; ++z) {
+                grid[x][y][z] = new_grid[x][y][z];
+            }
+        }
+    }
 }
 
 int
-on_grid(int cell_x, int cell_y)
+count_neighbours(int x, int y, int z)
 {
-    return (0 <= cell_x && cell_x <= grid_size - 1) && (0 <= cell_y && cell_y <= grid_size - 1);
-}
+    int count = 0;
 
-void
-toggle_cell(int x, int y, int value)
-{
-    int cell_x, cell_y;
-    cell_index(x, y, &cell_x, &cell_y);
-    if (on_grid(cell_x, cell_y)) grid[cell_x * grid_size + cell_y] = value;
-}
+    for (int i = 0; i <= 1; ++i) {
+        for (int j = 0; j <= 1; ++j) {
+            for (int k = 0; k <= 1; ++k) {
+                if (i == 0 && j == 0 && k == 0) continue;
 
-int
-count_neighbours(int x, int y)
-{
-    int neighbours = 0;
+                int nx = x + i;
+                int ny = y + j;
+                int nz = z + k;
 
-    for (int i = x - 1; i <= x + 1; ++i) {
-        for (int j = y - 1; j < y + 1; ++j) {
-            if (on_grid(i, j) && (i != x || j != y) && grid[i * grid_size + j] == ALIVE)
-                neighbours++;
+                if (condition(nx, ny, nz)) count += grid[nx][ny][nz];
+            }
         }
     }
 
-    return neighbours;
+    return count;
 }
 
 void
-conway_rules(int x, int y, int neighbours)
-{
-    switch (grid[x * grid_size + y]) {
-        case ALIVE:
-            next_grid[x * grid_size + y] = DYING;
-            break;
-        case DYING:
-            next_grid[x * grid_size + y] = DEAD;
-            break;
-        case DEAD:
-            if (neighbours == 2) next_grid[x * grid_size + y] = ALIVE;
-            break;
-    }
-}
-
-void
-apply_rules(int x, int y)
-{
-    int neighbours = count_neighbours(x, y);
-    conway_rules(x, y, neighbours);
-}
-
-void
-draw_cell(int x, int y)
-{
-    int cell_x = x * cell_width, cell_y = y * cell_height;
-
-    DrawRectangleLines(cell_x, cell_y, cell_width, cell_height, SKYBLUE);
-}
-
-void
-draw_cells()
-{
-    for (int y = 0; y < grid_size; ++y) {
-        for (int x = 0; x < grid_size; ++x) {
-            if (!paused) apply_rules(x, y);
-            else if (grid[x * grid_size + y] == ALIVE) draw_cell(x, y);
+conway() {
+    for (int x = 0; x < WIDTH; ++x) {
+        for (int y = 0; y < HEIGHT; ++y) {
+            for (int z = 0; z < DEPTH; ++z) {
+                if (grid[x][y][z] == ALIVE) {
+                    DrawCube(
+                            (Vector3){(float) x, (float) y, (float) z},
+                            1.0f, 1.0f, 1.0f,
+                            SKYBLUE
+                            );
+                }
+            }
         }
-    }
-}
-
-void
-change_animation_state(Animation *animation, int state)
-{
-    animation->state = state;
-    animation->start = GetTime(); 
-}
-
-void
-fade_color_setting(Animation *animation)
-{
-    Color color;
-    double seconds_elapsed;
-
-    switch (animation->state) {
-        case FADE_IN:
-            seconds_elapsed = abs_time - animation->start;
-            if (seconds_elapsed >= animation->duration) {
-                animation->state = IDLE;
-                color = animation->color;
-            } else
-                color = Fade(animation->color, (seconds_elapsed / animation->duration) * 255.0);
-            break;
-        case FADE_OUT:
-            seconds_elapsed = abs_time - animation->start;
-            if (seconds_elapsed >= animation->duration) {
-                animation->state = HIDDEN;
-                color = animation->color;
-            } else
-                color = Fade(animation->color, ((animation->duration - seconds_elapsed) / animation->duration) * 255.0);
-            break;
-        case IDLE:
-            color = animation->color;
-            break;
-        default:
-            printf("[ERROR] Invalid Animation State\n");
-            break;
-    }
-}
-
-void
-change_grid_size(int size)
-{
-    grid_size = size;
-    DrawGrid(grid_size, .5);
-}
-
-void
-game_mode_handler()
-{
-    if (IsKeyPressed(KEY_SPACE)) {
-        paused = !paused;
-        switch (pause_animation.state) {
-            case FADE_IN:
-                pause_animation.state = FADE_OUT;
-                break;
-            case FADE_OUT:
-                pause_animation.state = FADE_IN;
-                break;
-            case IDLE:
-                change_animation_state(&pause_animation, FADE_OUT);
-                break;
-            case HIDDEN:
-                change_animation_state(&pause_animation, FADE_IN);
-                break;
-        }
-    } else if (IsKeyPressed(KEY_R)) {
-        DrawGrid(grid_size, .5);
-        reset_t = GetTime();
-    } else if (IsKeyPressed(KEY_MINUS)) {
-        int new_size = grid_size - GRID_SIZE_CHANGE_STEP;
-        if (new_size <= 0) return;
-        change_grid_size(new_size);
-    } else if (IsKeyPressed(KEY_EQUAL)) {
-        change_grid_size(grid_size + GRID_SIZE_CHANGE_STEP);
     }
 }
 
 int
 main(void)
 {
-    InitWindow(width, height, WINDOW_TITLE);
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE);
 
-    cell_width = width / grid_size;
-    cell_height = height / grid_size;
-
-    Camera camera = {
-        .position = (Vector3){0.0f, 2.0f, 4.0f},
-        .target = (Vector3){0.0f, 2.0f, 0.0f},
-        .up = (Vector3){0.0f, 1.0f, 0.0f},
-        .fovy = 60.0f,
-        .projection = CAMERA_PERSPECTIVE
-    };
+    init_grid();
 
     DisableCursor();
     SetTargetFPS(60);
+
+    int frames = 0;
     while (!WindowShouldClose()) {
         UpdateCamera(&camera, camera_mode);
+
+        if (frames % 5 == 0) update_grid();
+        frames++;
+
         BeginDrawing();
             ClearBackground(RAYWHITE);
-            BeginMode3D();
-                draw_cells();
+            BeginMode3D(camera);
+                conway();
             EndMode3D();
         EndDrawing();
     }
