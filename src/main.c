@@ -5,6 +5,7 @@ condition(int nx, int ny, int nz)
 {
     return (nx >= 0 && nx < WIDTH && ny >= 0 && ny < HEIGHT && nz >= 0 && nz < DEPTH);
 }
+
 void
 init_grid()
 {
@@ -87,11 +88,7 @@ conway() {
         for (int y = 0; y < HEIGHT; ++y) {
             for (int z = 0; z < DEPTH; ++z) {
                 if (grid[x][y][z] == ALIVE) {
-                    DrawCube(
-                            (Vector3){(float) x, (float) y, (float) z},
-                            1.0f, 1.0f, 1.0f,
-                            SKYBLUE
-                            );
+                    DrawCube((Vector3) {(float) x, (float) y, (float) z}, 1.0f, 1.0f, 1.0f, SKYBLUE);
                 }
             }
         }
@@ -112,7 +109,7 @@ main(void)
     while (!WindowShouldClose()) {
         UpdateCamera(&camera, camera_mode);
 
-        if (frames % 5 == 0) update_grid();
+        if (frames % 10 == 0) update_grid();
         frames++;
 
         BeginDrawing();

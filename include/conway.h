@@ -11,15 +11,15 @@
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
 
-#define WIDTH         10
-#define HEIGHT        10
-#define DEPTH         10
+#define WIDTH         32
+#define HEIGHT        32
+#define DEPTH         32
 
 #define DEAD          0
 #define ALIVE         1
 
 Camera camera = {
-    .position = (Vector3){0.0f, 2.0f, 128.0f},
+    .position = (Vector3){0.0f, 2.0f, 100.0f},
     .target = (Vector3){0.0f, 2.0f, 0.0f},
     .up = (Vector3){0.0f, 1.0f, 0.0f},
     .fovy = 60.0f,

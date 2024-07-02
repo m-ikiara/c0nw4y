@@ -5,30 +5,32 @@
 
 ## Getting Started[^1]
 
-1. Clone the repo using either of the following commands:
+1. Clone the repo using the following command:
 
 ```console
 $ git clone https://github.com/m-ikiara/c0nw4y.git
 ```
 
-2. Navigate into the new directory and execute the following:
+2. Navigate into the new directory and build the executable:
 
 ```console
 $ make -B -j3
-$ ./6utt3r
 ```
+3. Run the executable and enjoy the show.
+
+```console
+$ ./c0nw4y
+```
+
 ## References
 
-- SDL2 Tutorials by @MikeShah: [Tutorials](https://github.com/MikeShah/SDL2_Tutorials)
-- RayLib 3D Camera by Ramon Santamaria @raysan5 : [rcamera.h](https://github.com/raysan5/raylib/blob/master/src/rcamera.h)
-- SDL2 @libsdl-org: [SDL2](https://github.com/libsdl-org/SDL)
+- RayLib's well-documented Source Code by Ramon Santamaria @raysan5 : [RayLib](https://github.com/raysan5/raylib)
 
 ## Licensing
 
 This project is licensed under the:
 
-- [MIT License](./LICENSE).
-- [Apache-2.0 License](./LICENSE)
+- [MIT License](./LICENSE)
 
 at your option.
 
