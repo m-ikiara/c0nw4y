@@ -1,6 +1,8 @@
 <div align="center">
     <h1>c0nw4y</h1>
-    <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/m-ikiara/c0nw4y?style=plastic&color=red" />
+    <img
+        alt="Repo Size"
+        src="https://img.shields.io/github/repo-size/m-ikiara/c0nw4y?style=plastic&logo=c&color=red"/>
 </div>
 
 ## Getting Started[^1]
